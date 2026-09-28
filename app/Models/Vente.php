@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Vente extends Model
 {
     protected $table = 'ventes';
-    protected $fillable = ['client_id', 'utilisateur_id', 'date_vente', 'montant_total', 'statut_paiement'];
+
+    protected $fillable = [
+        'client_id', 'utilisateur_id', 'date_vente', 'montant_total',
+        'frais_livraison', 'mode_livraison', 'statut_paiement',
+    ];
+
+    protected $casts = [
+        'date_vente' => 'datetime',
+    ];
 
     public function client()
     {
@@ -29,13 +37,13 @@ class Vente extends Model
         return $this->hasMany(Paiement::class);
     }
 
-    public function facture()
+    public function getMontantPayeAttribute(): float
     {
-        return $this->hasOne(Facture::class);
+        return (float) $this->paiements->sum('montant');
     }
 
-    public function mouvementsStock()
+    public function getResteAPayerAttribute(): float
     {
-        return $this->hasMany(MouvementStock::class);
+        return max(0, (float) $this->montant_total - $this->montant_paye);
     }
 }
