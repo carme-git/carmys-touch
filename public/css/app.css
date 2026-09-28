@@ -1,0 +1,108 @@
+:root {
+  --rose: #C6788F;
+  --rose-pale: #FBE7EC;
+  --rose-clair: #F1DDE2;
+  --fond: #FFFBFA;
+  --carte-fond: #FDF3F1;
+  --texte: #3D3436;
+  --texte-doux: #A9868F;
+  --rouge: #C25B6B;
+  --rouge-pale: #F6D3DA;
+  --vert: #5B8A4F;
+  --vert-pale: #DCEAD6;
+}
+
+body {
+  background: var(--fond);
+  color: var(--texte);
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+h1, h2, h3, .page-title {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #FFFFFF;
+  border-right: 1px solid var(--rose-clair);
+  padding: 22px 14px;
+  flex-shrink: 0;
+}
+.sidebar-brand {
+  color: var(--rose);
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 24px;
+}
+.sidebar-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--texte-doux);
+  font-size: 13.5px;
+  margin-bottom: 3px;
+  text-decoration: none;
+}
+.sidebar-nav .nav-link:hover {
+  background: var(--rose-pale);
+  color: #9C4B63;
+}
+.sidebar-nav .nav-link.active {
+  background: var(--rose-pale);
+  color: #9C4B63;
+  font-weight: 500;
+}
+
+/* Topbar */
+.topbar {
+  height: 56px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--rose-clair);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+.topbar-title {
+  font-weight: 500;
+  font-size: 15px;
+}
+.topbar-user {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+
+/* Cartes & composants génériques */
+.card-app {
+  background: #FFFFFF;
+  border: 1px solid var(--rose-clair);
+  border-radius: 14px;
+  padding: 16px;
+}
+.card-chiffre {
+  background: var(--carte-fond);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.btn-rose {
+  background: var(--rose);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.btn-rose:hover { background: #B4677E; color: #fff; }
+
+.badge-paye { background: var(--vert-pale); color: #3D6B33; }
+.badge-partiel { background: #F7E4C9; color: #8A5A20; }
+.badge-impaye { background: var(--rouge-pale); color: #96334A; }
+.badge-app {
+  border-radius: 10px; font-size: 11px; padding: 3px 9px; font-weight: 500;
+}
