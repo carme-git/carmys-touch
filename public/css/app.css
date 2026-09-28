@@ -161,3 +161,31 @@ h1, h2, h3, .page-title {
   color: var(--texte-doux);
   margin-bottom: 4px;
 }
+.auth-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bleu-pale), #ffffff);
+}
+.auth-carte {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border: 1px solid var(--bleu-clair);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+}
+.auth-marque {
+    font-family: 'Playfair Display', serif;
+    color: var(--bleu);
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: .5rem;
+}
+.auth-devise {
+    text-align: center;
+    color: var(--texte-doux);
+    font-size: .85rem;
+    margin-bottom: 2rem;
+}

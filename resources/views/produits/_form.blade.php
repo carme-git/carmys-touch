@@ -14,7 +14,7 @@
     <div class="col-md-6">
         <label class="form-label">Catégorie</label>
         <select name="category_id" class="form-select">
-            <option value="">— Aucune —</option>
+            <option value="">Aucune</option>
             @foreach($categories as $c)
                 <option value="{{ $c->id }}" @selected(old('category_id', $produit->category_id) == $c->id)>{{ $c->nom }}</option>
             @endforeach
