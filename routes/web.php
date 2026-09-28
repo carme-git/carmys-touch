@@ -6,8 +6,7 @@ Route::get('/', function () {
     return view('dashboard');
 })->name('dashboard');
 
-Route::get('/produits', [App\Http\Controllers\ProduitController::class, 'index'])->name('produits.index');
-
+Route::resource('produits', App\Http\Controllers\ProduitController::class)->except('show');
 // Routes provisoires (à remplacer par les vrais contrôleurs au fur et à mesure)
 Route::view('/ventes', 'placeholder', ['titre' => 'Ventes'])->name('ventes.index');
 Route::view('/achats', 'placeholder', ['titre' => 'Achats'])->name('achats.index');
