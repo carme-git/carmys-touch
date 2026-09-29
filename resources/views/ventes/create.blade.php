@@ -6,30 +6,44 @@
 <form method="POST" action="{{ route('ventes.store') }}" class="card-app p-4">
     @csrf
 
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-2">
         <div class="col-md-4">
-            <label class="form-label">Cliente</label>
-            <select name="client_id" class="form-select @error('client_id') is-invalid @enderror" required>
-                <option value="">— Choisir —</option>
+            <label class="form-label">Cliente enregistrée</label>
+            <select name="client_id" class="form-select @error('client_id') is-invalid @enderror">
+                <option value="">— Aucune / nouvelle —</option>
                 @foreach($clients as $client)
                     <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->nom_complet }}</option>
                 @endforeach
             </select>
             @error('client_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
+            <label class="form-label">Ou nouvelle cliente (nom)</label>
+            <input type="text" name="client_nom" value="{{ old('client_nom') }}"
+                   class="form-control" placeholder="Ex. Awa Koné" maxlength="100">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Téléphone (facultatif)</label>
+            <input type="text" name="client_telephone" value="{{ old('client_telephone') }}"
+                   class="form-control" maxlength="30">
+        </div>
+    </div>
+    <div class="form-text mb-4">Laisse les deux vides pour une vente sans cliente. Si une cliente est choisie dans la liste, la saisie est ignorée.</div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
             <label class="form-label">Date</label>
             <input type="date" name="date_vente" value="{{ old('date_vente', now()->format('Y-m-d')) }}"
                    class="form-control @error('date_vente') is-invalid @enderror" required>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label class="form-label">Livraison</label>
             <select name="mode_livraison" class="form-select" required>
                 <option value="soi_meme" @selected(old('mode_livraison') === 'soi_meme')>Par moi-même</option>
                 <option value="service" @selected(old('mode_livraison') === 'service')>Par un service</option>
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-4">
             <label class="form-label">Frais de livraison</label>
             <input type="number" name="frais_livraison" id="frais" min="0" step="1"
                    value="{{ old('frais_livraison', 0) }}" class="form-control">
@@ -55,6 +69,22 @@
     <button type="button" id="ajouter" class="btn btn-sm btn-outline-secondary mb-4">
         <i class="bi bi-plus"></i> Ajouter un parfum
     </button>
+
+    <div class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="paye_maintenant" id="paye_maintenant"
+                       value="1" @checked(old('paye_maintenant'))>
+                <label class="form-check-label" for="paye_maintenant">Payée en totalité maintenant</label>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="mode_paiement_immediat" class="form-select">
+                <option value="especes" @selected(old('mode_paiement_immediat') === 'especes')>Espèces</option>
+                <option value="mobile_money" @selected(old('mode_paiement_immediat') === 'mobile_money')>Mobile Money</option>
+            </select>
+        </div>
+    </div>
 
     <div class="d-flex justify-content-between align-items-center">
         <div class="fs-5">Total : <strong id="total">0 F</strong></div>

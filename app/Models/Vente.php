@@ -46,4 +46,18 @@ class Vente extends Model
     {
         return max(0, (float) $this->montant_total - $this->montant_paye);
     }
+        // Le statut se déduit toujours des paiements : on ne le saisit jamais à la main
+    public function recalculerStatut(): void
+    {
+        $paye  = (float) $this->paiements()->sum('montant');
+        $total = (float) $this->montant_total;
+
+        $statut = match (true) {
+            $paye <= 0      => 'impaye',
+            $paye >= $total => 'paye',
+            default         => 'partiel',
+        };
+
+        $this->update(['statut_paiement' => $statut]);
+    }
 }

@@ -3,7 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\VenteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PaiementController;
 
 // Pages accessibles seulement si on n'est PAS connectée
 Route::middleware('guest')->group(function () {
@@ -21,8 +23,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('produits', ProduitController::class)->except('show');
     Route::resource('clients', ClientController::class);
+    Route::resource('ventes', VenteController::class)->only(['index', 'create', 'store', 'show']);
+    Route::post('ventes/{vente}/paiements', [PaiementController::class, 'store'])->name('paiements.store');
+Route::delete('paiements/{paiement}', [PaiementController::class, 'destroy'])->name('paiements.destroy');
 
-    Route::view('/ventes', 'placeholder', ['titre' => 'Ventes'])->name('ventes.index');
     Route::view('/achats', 'placeholder', ['titre' => 'Achats'])->name('achats.index');
     Route::view('/fournisseurs', 'placeholder', ['titre' => 'Fournisseurs'])->name('fournisseurs.index');
     Route::view('/depenses', 'placeholder', ['titre' => 'Dépenses'])->name('depenses.index');

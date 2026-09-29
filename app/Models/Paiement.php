@@ -10,9 +10,7 @@ class Paiement extends Model
 
     protected $fillable = ['vente_id', 'montant', 'mode_paiement', 'reference', 'date_paiement'];
 
-    protected $casts = [
-        'date_paiement' => 'datetime',
-    ];
+    protected $casts = ['date_paiement' => 'date'];
 
     public function vente()
     {
