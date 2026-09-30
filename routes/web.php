@@ -26,7 +26,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('produits', ProduitController::class)->except('show');
     Route::resource('clients', ClientController::class);
-
     Route::resource('ventes', VenteController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('ventes/{vente}/paiements', [PaiementController::class, 'store'])->name('paiements.store');
     Route::delete('paiements/{paiement}', [PaiementController::class, 'destroy'])->name('paiements.destroy');
@@ -35,4 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('achats', AchatController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('fournisseurs', FournisseurController::class);
     Route::resource('depenses', DepenseController::class)->except('show');
+    Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+    Route::get('stock/inventaire', [StockController::class, 'inventaire'])->name('stock.inventaire');
+    Route::post('stock/inventaire', [StockController::class, 'enregistrerInventaire'])->name('stock.inventaire.store');
+
 });

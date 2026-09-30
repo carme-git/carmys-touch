@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProduitRequest;
 use App\Models\Categorie;
 use App\Models\Produit;
+use App\Services\StockService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProduitController extends Controller
 {
+    public function __construct(private StockService $stock)
+    {
+    }
+
     public function index(Request $request)
     {
         $produits = Produit::with('categorie')
@@ -33,11 +40,21 @@ class ProduitController extends Controller
     {
         $data = $request->validated();
 
+        // Le stock de départ passe par le service : il laisse une trace dans l'historique
+        $stockInitial = (int) ($data['quantite_stock'] ?? 0);
+        $data['quantite_stock'] = 0;
+
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('produits', 'public');
         }
 
-        Produit::create($data);
+        DB::transaction(function () use ($data, $stockInitial) {
+            $produit = Produit::create($data);
+
+            if ($stockInitial > 0) {
+                $this->stock->correction($produit->id, $stockInitial);
+            }
+        });
 
         return redirect()->route('produits.index')->with('success', 'Produit ajouté.');
     }
@@ -52,7 +69,8 @@ class ProduitController extends Controller
 
     public function update(ProduitRequest $request, Produit $produit)
     {
-        $data = $request->validated();
+        // Le stock ne se modifie jamais ici : uniquement par vente, achat ou inventaire
+        $data = Arr::except($request->validated(), ['quantite_stock']);
 
         if ($request->hasFile('image')) {
             if ($produit->image) {

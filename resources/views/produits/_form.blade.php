@@ -5,7 +5,7 @@
         <input type="text" name="nom" value="{{ old('nom', $produit->nom) }}" class="form-control @error('nom') is-invalid @enderror">
         @error('nom')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
-        <div class="col-md-4">
+    <div class="col-md-4">
         <label class="form-label">Référence</label>
         <input type="text" name="reference" value="{{ old('reference', $produit->reference) }}" class="form-control @error('reference') is-invalid @enderror">
         @error('reference')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -37,9 +37,17 @@
         @error('prix_vente')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-3">
-        <label class="form-label">Stock *</label>
-        <input type="number" name="quantite_stock" value="{{ old('quantite_stock', $produit->quantite_stock ?? 0) }}" class="form-control @error('quantite_stock') is-invalid @enderror">
-        @error('quantite_stock')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        @if($produit->exists)
+            <label class="form-label">Stock actuel</label>
+            <input type="number" name="quantite_stock" value="{{ $produit->quantite_stock }}" class="form-control" readonly>
+            <div class="form-text">
+                Se modifie par une vente, un achat ou un <a href="{{ route('stock.inventaire') }}">inventaire</a>.
+            </div>
+        @else
+            <label class="form-label">Stock de départ *</label>
+            <input type="number" name="quantite_stock" value="{{ old('quantite_stock', 0) }}" min="0" class="form-control @error('quantite_stock') is-invalid @enderror">
+            @error('quantite_stock')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        @endif
     </div>
     <div class="col-md-3">
         <label class="form-label">Seuil d'alerte *</label>

@@ -1,4 +1,3 @@
-
 <aside class="sidebar">
     <div class="sidebar-brand">Carmy's Touch</div>
 
@@ -14,6 +13,9 @@
         </a>
         <a href="{{ route('achats.index') }}" class="nav-link {{ request()->routeIs('achats.*') ? 'active' : '' }}">
             <i class="bi bi-truck"></i> Achats
+        </a>
+        <a href="{{ route('stock.index') }}" class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}">
+            <i class="bi bi-boxes"></i> Stock
         </a>
         <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
             <i class="bi bi-people"></i> Clientes

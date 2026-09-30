@@ -18,4 +18,6 @@ class MouvementStock extends Model
     protected $casts = ['date_mouvement' => 'datetime'];
 
     public function produit() { return $this->belongsTo(Produit::class); }
+    public function vente()   { return $this->belongsTo(Vente::class); }
+    public function achat()   { return $this->belongsTo(Achat::class); }
 }

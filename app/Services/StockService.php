@@ -36,12 +36,29 @@ class StockService
     }
 
     // Annulation d'une vente : chaque parfum vendu revient en stock, avec une trace dans l'historique
-    // À appeler DANS une transaction, avec $vente->detailsVentes chargé
     public function retourAnnulation(Vente $vente): void
     {
         foreach ($vente->detailsVentes as $ligne) {
             $this->entree($ligne->produit_id, $ligne->quantite, venteId: $vente->id);
         }
+    }
+
+    // Correction d'inventaire : on fixe le stock à la quantité réellement comptée.
+    // La quantité du mouvement est l'écart, avec son signe (+3 ou -2). Renvoie l'écart (0 = rien à corriger).
+    public function correction(int $produitId, int $nouvelleQuantite): int
+    {
+        $produit = Produit::lockForUpdate()->findOrFail($produitId);
+        $ecart   = $nouvelleQuantite - (int) $produit->quantite_stock;
+
+        if ($ecart === 0) {
+            return 0;
+        }
+
+        $produit->quantite_stock = $nouvelleQuantite;
+        $produit->save();
+        $this->journaliser($produit->id, 'correction', $ecart);
+
+        return $ecart;
     }
 
     private function journaliser(int $produitId, string $type, int $quantite, ?int $achatId = null, ?int $venteId = null): void
