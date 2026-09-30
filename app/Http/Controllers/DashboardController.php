@@ -38,8 +38,13 @@ class DashboardController extends Controller
         // --- Ventes du jour ---
         $ventesJour = Vente::nonAnnulees()->whereDate('date_vente', today());
         $nbVentesJour = (clone $ventesJour)->count();
-        $caJour       = (clone $ventesJour)->sum('montant_total');
-
+        
+        // Comme pour le CA du mois : prix des parfums seulement, la livraison n'est pas ton argent
+        $caJour = DB::table('details_ventes')
+            ->join('ventes', 'ventes.id', '=', 'details_ventes.vente_id')
+            ->whereNull('ventes.annulee_le')
+            ->whereDate('ventes.date_vente', today())
+            ->sum('details_ventes.sous_total');
         // --- Impayés, du plus ancien au plus récent ---
         $impayes = Vente::nonAnnulees()
             ->with(['client', 'paiements'])

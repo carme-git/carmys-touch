@@ -8,6 +8,7 @@ use App\Http\Controllers\DepenseController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\VenteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FactureController;
