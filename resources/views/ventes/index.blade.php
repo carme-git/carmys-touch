@@ -24,13 +24,19 @@
         </thead>
         <tbody>
         @forelse($ventes as $vente)
-            <tr>
+            <tr @class(['text-muted' => $vente->estAnnulee()])>
                 <td>{{ $vente->date_vente->format('d/m/Y') }}</td>
                 <td>{{ $vente->client->nom_complet ?? '—' }}</td>
-                <td>{{ number_format($vente->montant_total, 0, ',', ' ') }} F</td>
+                <td @class(['text-decoration-line-through' => $vente->estAnnulee()])>{{ number_format($vente->montant_total, 0, ',', ' ') }} F</td>
                 <td>{{ number_format($vente->montant_paye, 0, ',', ' ') }} F</td>
                 <td>{{ number_format($vente->reste_a_payer, 0, ',', ' ') }} F</td>
-                <td><span class="badge-app badge-{{ $vente->statut_paiement }}">{{ ucfirst($vente->statut_paiement) }}</span></td>
+                <td>
+                    @if($vente->estAnnulee())
+                        <span class="badge-app badge-impaye">Annulée</span>
+                    @else
+                        <span class="badge-app badge-{{ $vente->statut_paiement }}">{{ ucfirst($vente->statut_paiement) }}</span>
+                    @endif
+                </td>
                 <td class="text-end">
                     <a href="{{ route('ventes.show', $vente) }}" class="icon-btn"><i class="bi bi-eye"></i></a>
                 </td>

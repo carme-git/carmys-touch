@@ -9,6 +9,9 @@
     ];
 
     $statuts = ['paye' => 'Payée', 'partiel' => 'Paiement partiel', 'impaye' => 'Non payée'];
+
+    $annulee = $vente->estAnnulee();
+    $totalRembourse = (float) $vente->paiements->whereNotNull('rembourse_le')->sum('montant');
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -32,6 +35,8 @@
         table.totaux td { padding: 5px 7px; }
         .total td { font-weight: bold; font-size: 13px; border-top: 2px solid #2b7bb9; }
         .reste td { color: #c0392b; font-weight: bold; }
+        .annulee { border: 2px solid #c0392b; color: #c0392b; text-align: center; padding: 8px; margin-bottom: 20px; font-weight: bold; font-size: 14px; }
+        .annulee small { display: block; font-weight: normal; font-size: 10px; margin-top: 3px; }
         .merci { margin-top: 40px; text-align: center; color: #6b7785; font-size: 10px; }
     </style>
 </head>
@@ -52,6 +57,16 @@
             </td>
         </tr>
     </table>
+
+    @if($annulee)
+        <div class="annulee">
+            ANNULÉE
+            <small>
+                Vente annulée le {{ $vente->annulee_le->format('d/m/Y') }}
+                @if($vente->motif_annulation) — {{ $vente->motif_annulation }} @endif
+            </small>
+        </div>
+    @endif
 
     <div class="bloc">
         <div class="etiquette">Facturé à</div>
@@ -101,7 +116,13 @@
             <td>Déjà payé</td>
             <td class="droite">{{ $f($vente->montant_paye) }}</td>
         </tr>
-        @if($vente->reste_a_payer > 0)
+        @if($totalRembourse > 0)
+            <tr>
+                <td>Remboursé</td>
+                <td class="droite">{{ $f($totalRembourse) }}</td>
+            </tr>
+        @endif
+        @if(! $annulee && $vente->reste_a_payer > 0)
             <tr class="reste">
                 <td>Reste à payer</td>
                 <td class="droite">{{ $f($vente->reste_a_payer) }}</td>
@@ -109,7 +130,7 @@
         @endif
         <tr>
             <td>Statut</td>
-            <td class="droite">{{ $statuts[$vente->statut_paiement] ?? $vente->statut_paiement }}</td>
+            <td class="droite">{{ $annulee ? 'Annulée' : ($statuts[$vente->statut_paiement] ?? $vente->statut_paiement) }}</td>
         </tr>
     </table>
 

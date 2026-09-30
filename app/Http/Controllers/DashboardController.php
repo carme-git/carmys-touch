@@ -15,17 +15,18 @@ class DashboardController extends Controller
         $debut = now()->startOfMonth();
         $fin   = now()->endOfMonth();
 
-        // --- Chiffres du mois ---
+        // --- Chiffres du mois (ventes annulées exclues) ---
         $lignesMois = DB::table('details_ventes')
             ->join('ventes', 'ventes.id', '=', 'details_ventes.vente_id')
             ->join('produits', 'produits.id', '=', 'details_ventes.produit_id')
+            ->whereNull('ventes.annulee_le')
             ->whereBetween('ventes.date_vente', [$debut, $fin]);
 
         $ca         = (clone $lignesMois)->sum('details_ventes.sous_total');
         $coutAchat  = (clone $lignesMois)->sum(DB::raw('details_ventes.quantite * produits.prix_achat'));
         $depenses   = Depense::whereBetween('date_depense', [$debut->toDateString(), $fin->toDateString()])->sum('montant');
         $benefice   = $ca - $coutAchat - $depenses;
-        $nbVentes   = Vente::whereBetween('date_vente', [$debut, $fin])->count();
+        $nbVentes   = Vente::nonAnnulees()->whereBetween('date_vente', [$debut, $fin])->count();
 
         $topProduits = (clone $lignesMois)
             ->select('produits.nom', DB::raw('SUM(details_ventes.quantite) as quantite'), DB::raw('SUM(details_ventes.sous_total) as total'))
@@ -35,12 +36,13 @@ class DashboardController extends Controller
             ->get();
 
         // --- Ventes du jour ---
-        $ventesJour = Vente::whereDate('date_vente', today());
+        $ventesJour = Vente::nonAnnulees()->whereDate('date_vente', today());
         $nbVentesJour = (clone $ventesJour)->count();
         $caJour       = (clone $ventesJour)->sum('montant_total');
 
         // --- Impayés, du plus ancien au plus récent ---
-        $impayes = Vente::with(['client', 'paiements'])
+        $impayes = Vente::nonAnnulees()
+            ->with(['client', 'paiements'])
             ->whereIn('statut_paiement', ['impaye', 'partiel'])
             ->orderBy('date_vente')
             ->get();
@@ -54,12 +56,15 @@ class DashboardController extends Controller
         // --- Stock dormant ---
         $derniereVente = DB::table('details_ventes')
             ->join('ventes', 'ventes.id', '=', 'details_ventes.vente_id')
+            ->whereNull('ventes.annulee_le')
             ->select('details_ventes.produit_id', DB::raw('MAX(ventes.date_vente) as derniere'))
             ->groupBy('details_ventes.produit_id')
             ->pluck('derniere', 'produit_id');
 
+        // Les entrées liées à une vente annulée ne comptent pas comme un réapprovisionnement
         $derniereEntree = DB::table('mouvements_stock')
             ->where('type', 'entree')
+            ->whereNull('vente_id')
             ->select('produit_id', DB::raw('MAX(date_mouvement) as derniere'))
             ->groupBy('produit_id')
             ->pluck('derniere', 'produit_id');

@@ -11,6 +11,11 @@ class PaiementController extends Controller
 {
     public function store(Request $request, Vente $vente)
     {
+        // Refus côté serveur : le bouton est masqué, mais l'adresse peut être tapée à la main
+        if ($vente->estAnnulee()) {
+            return back()->with('error', 'Cette vente est annulée : on ne peut plus y ajouter de paiement.');
+        }
+
         $reste = $vente->reste_a_payer;
 
         if ($reste <= 0) {
@@ -38,6 +43,11 @@ class PaiementController extends Controller
     public function destroy(Paiement $paiement)
     {
         $vente = $paiement->vente;
+
+        // Un paiement remboursé fait partie de l'historique de l'annulation : on le garde
+        if ($vente->estAnnulee() || $paiement->estRembourse()) {
+            return back()->with('error', 'Ce paiement appartient à une vente annulée ou a été remboursé : il ne peut pas être supprimé.');
+        }
 
         DB::transaction(function () use ($paiement, $vente) {
             $paiement->delete();

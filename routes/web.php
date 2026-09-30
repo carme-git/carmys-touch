@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::post('ventes/{vente}/paiements', [PaiementController::class, 'store'])->name('paiements.store');
     Route::delete('paiements/{paiement}', [PaiementController::class, 'destroy'])->name('paiements.destroy');
     Route::get('ventes/{vente}/facture', [FactureController::class, 'pdf'])->name('ventes.facture');
+    Route::post('ventes/{vente}/annuler', [VenteController::class, 'annuler'])->name('ventes.annuler');
     Route::resource('achats', AchatController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('fournisseurs', FournisseurController::class);
     Route::resource('depenses', DepenseController::class)->except('show');

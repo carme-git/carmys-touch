@@ -9,6 +9,7 @@ use App\Models\Vente;
 use App\Services\StockService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class VenteController extends Controller
 {
@@ -106,5 +107,44 @@ class VenteController extends Controller
         $vente->load(['client', 'utilisateur', 'detailsVentes.produit', 'paiements']);
 
         return view('ventes.show', compact('vente'));
+    }
+        public function annuler(Request $request, Vente $vente)
+    {
+        $request->validate([
+            'motif_annulation' => ['nullable', 'string', 'max:255'],
+        ], [
+            'motif_annulation.max' => 'Le motif ne peut pas dépasser 255 caractères.',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $vente) {
+                // On relit la vente avec un verrou : pas de double annulation si on clique deux fois
+                $vente = Vente::with(['detailsVentes', 'paiements'])
+                    ->lockForUpdate()
+                    ->findOrFail($vente->id);
+
+                if ($vente->estAnnulee()) {
+                    throw new \RuntimeException('Cette vente est déjà annulée.');
+                }
+
+                // 1. Les parfums reviennent en stock
+                $this->stock->retourAnnulation($vente);
+
+                // 2. Les paiements reçus sont marqués remboursés à la date du jour
+                $vente->paiements()->whereNull('rembourse_le')->update(['rembourse_le' => now()]);
+
+                // 3. La vente est marquée annulée (elle n'est jamais effacée)
+                $vente->update([
+                    'annulee_le'       => now(),
+                    'motif_annulation' => $request->motif_annulation,
+                ]);
+
+                $vente->recalculerStatut();
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['annulation' => $e->getMessage()]);
+        }
+
+        return redirect()->route('ventes.show', $vente)->with('success', 'Vente annulée. Le stock a été remis.');
     }
 }
