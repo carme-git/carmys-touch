@@ -6,11 +6,16 @@ use App\Http\Requests\VenteRequest;
 use App\Models\Client;
 use App\Models\Produit;
 use App\Models\Vente;
+use App\Services\StockService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class VenteController extends Controller
 {
+    public function __construct(private StockService $stock)
+    {
+    }
+
     public function index()
     {
         // with(...) charge client et paiements en une fois : évite une requête par ligne
@@ -61,14 +66,8 @@ class VenteController extends Controller
                 ]);
 
                 foreach ($request->lignes as $ligne) {
-                    // lockForUpdate : personne ne peut modifier ce stock pendant le calcul
-                    $produit = Produit::lockForUpdate()->findOrFail($ligne['produit_id']);
-
-                    if ($produit->quantite_stock < $ligne['quantite']) {
-                        throw new \RuntimeException(
-                            "Stock insuffisant pour « {$produit->nom} » : {$produit->quantite_stock} disponible(s)."
-                        );
-                    }
+                    // Le service vérifie le stock, le diminue et l'écrit dans l'historique
+                    $produit = $this->stock->sortie($ligne['produit_id'], $ligne['quantite'], $vente->id);
 
                     $vente->detailsVentes()->create([
                         'produit_id'    => $produit->id,
@@ -76,8 +75,6 @@ class VenteController extends Controller
                         'prix_unitaire' => $ligne['prix_unitaire'],
                         'remise'        => $ligne['remise'] ?? 0,
                     ]);
-
-                    $produit->decrement('quantite_stock', $ligne['quantite']);
                 }
 
                 // Le total vient des sous_total calculés par MySQL
