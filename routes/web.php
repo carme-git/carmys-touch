@@ -10,6 +10,7 @@ use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\VenteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FactureController;
 
 // Pages accessibles seulement si on n'est PAS connectée
 Route::middleware('guest')->group(function () {
@@ -29,7 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('ventes', VenteController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('ventes/{vente}/paiements', [PaiementController::class, 'store'])->name('paiements.store');
     Route::delete('paiements/{paiement}', [PaiementController::class, 'destroy'])->name('paiements.destroy');
-
+    Route::get('ventes/{vente}/facture', [FactureController::class, 'pdf'])->name('ventes.facture');
     Route::resource('achats', AchatController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('fournisseurs', FournisseurController::class);
     Route::resource('depenses', DepenseController::class)->except('show');

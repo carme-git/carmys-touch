@@ -5,6 +5,12 @@
 @section('content')
 @include('partials.alertes')
 
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ route('ventes.facture', $vente) }}" target="_blank" class="btn btn-rose">
+        <i class="bi bi-file-earmark-pdf"></i> Facture PDF
+    </a>
+</div>
+
 <div class="card-app p-4 mb-3">
     <div class="d-flex justify-content-between">
         <div>
